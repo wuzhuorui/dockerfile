@@ -11,6 +11,12 @@ call vundle#begin()
 Plugin 'scrooloose/nerdtree'
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'Valloric/YouCompleteMe'
+Plugin 'google/vim-maktaba'
+Plugin 'google/vim-codefmt'
+" Also add Glaive, which is used to configure codefmt's maktaba flags. See
+" `:help :Glaive` for usage.
+Plugin 'google/vim-glaive'
+
 " Plugin 'fatih/vim-go.git'
 "
 " " The following are examples of different formats supported.

@@ -73,10 +73,6 @@ RUN mkdir ~/.ycm_build \
     && cmake --build . --target ycm_core
 
 
-COPY .ycm_extra_conf.py /home/$user/.vim/.ycm_extra_conf.py
-COPY .vimrc /home/$user/.vimrc
-RUN vim +PluginInstall +qall
-
 RUN sed -i "s/#force_color_prompt=yes/force_color_prompt=yes/g" ~/.bashrc
 
 #安装 qt
@@ -95,7 +91,11 @@ RUN cd /home/$user/build/qtbase-everywhere-src-5.12.11 \
 RUN cd /home/$user/build/qtbase-everywhere-src-5.12.11 \
 	&& echo "$password" | sudo -S make install \
 	&& echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/Qt-5.12.11/lib" >> ${HOME}/.bashrc \
-	&& mkdir -p /home/$user/code/qt/ 
+	&& mkdir -p /home/$user/code/qt/
+
+COPY .ycm_extra_conf.py /home/$user/.vim/.ycm_extra_conf.py
+COPY .vimrc /home/$user/.vimrc
+RUN vim +PluginInstall +qall
 COPY .qtycm_extra_conf.py /home/$user/code/qt/.ycm_extra_conf.py
 
 WORKDIR /home/$user
