@@ -80,21 +80,22 @@ RUN vim +PluginInstall +qall
 RUN sed -i "s/#force_color_prompt=yes/force_color_prompt=yes/g" ~/.bashrc
 
 #安装 qt
-WORKDIR /home/build
 
-RUN cd /home/build && wget http://qt.mirror.constant.com/archive/qt/5.12/5.12.11/qt-opensource-linux-x64-5.12.11.run && chmod +x qt-opensource-linux-x64-5.12.11.run 
+RUN mkdir /home/$user/build \
+	&& cd /home/$user/build \ 
+	&& wget https://download.qt.io/archive/qt/5.12/5.12.11/submodules/qtbase-everywhere-src-5.12.11.tar.xz  \
+	&& tar -xvf qtbase-everywhere-src-5.12.11.tar.xz 
 
-RUN echo "$password" | sudo -S apt-get install build-essential libgl1-mesa-dev -y \
-	&& sudo apt install libxkbcommon-x11-0 -y \
-	&& sudo apt-get install -y libwayland-cursor0
+COPY qtinstall.sh /home/$user/build/qtinstall.sh
+RUN echo "$password" | sudo -S bash /home/$user/build/qtinstall.sh
+RUN cd /home/$user/build/qtbase-everywhere-src-5.12.11 \
+	&& ./configure -confirm-license -opensource \
+	&& make
 
-RUN sleep 3000
-
-ARG displayip
-RUN cd /home/build \
-	&& export DISPLAY=$displayip:0.0 \ 
-	&& export LIBGL_ALWAYS_INDIRECT=1 \
-	&& sudo /etc/init.d/dbus start &> /dev/null \
-	&& ./qt-opensource-linux-x64-5.12.11.run
+RUN cd /home/$user/build/qtbase-everywhere-src-5.12.11 \
+	&& echo "$password" | sudo -S make install \
+	&& echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/Qt-5.12.11/lib" >> ${HOME}/.bashrc \
+	&& mkdir -p /home/$user/code/qt/ 
+COPY .qtycm_extra_conf.py /home/$user/code/qt/.ycm_extra_conf.py
 
 WORKDIR /home/$user
