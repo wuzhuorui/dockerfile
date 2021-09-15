@@ -74,6 +74,7 @@ highlight cursorline cterm=NONE ctermbg=black ctermfg=NONE guibg=NONE guifg=NONE
 set fileencodings=utf-8,ucs-bom,gb18030,gbk,gb2312,cp936
 set termencoding=utf-8
 set encoding=utf-8
+au BufWrite * : FormatCode
 let g:ycm_server_python_interpreter='/usr/bin/python3.6'
 let g:ycm_global_ycm_extra_conf='~/.vim/.ycm_extra_conf.py'
 

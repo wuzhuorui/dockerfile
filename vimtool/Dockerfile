@@ -75,27 +75,43 @@ RUN mkdir ~/.ycm_build \
 
 RUN sed -i "s/#force_color_prompt=yes/force_color_prompt=yes/g" ~/.bashrc
 
+RUN echo "$password" | sudo -S apt-get install ttf-wqy-microhei
 #安装 qt
 
 RUN mkdir /home/$user/build \
 	&& cd /home/$user/build \ 
 	&& wget https://download.qt.io/archive/qt/5.12/5.12.11/submodules/qtbase-everywhere-src-5.12.11.tar.xz  \
-	&& tar -xvf qtbase-everywhere-src-5.12.11.tar.xz 
+	&& wget https://download.qt.io/archive/qt/5.12/5.12.11/submodules/qttools-everywhere-src-5.12.11.tar.xz \
+	&& tar -xvf qtbase-everywhere-src-5.12.11.tar.xz \
+	&& tar -xvf qttools-everywhere-src-5.12.11.tar.xz \
+	&& rm qtbase-everywhere-src-5.12.11.tar.xz \
+	&& rm qttools-everywhere-src-5.12.11.tar.xz 
 
 COPY qtinstall.sh /home/$user/build/qtinstall.sh
 RUN echo "$password" | sudo -S bash /home/$user/build/qtinstall.sh
 RUN cd /home/$user/build/qtbase-everywhere-src-5.12.11 \
 	&& ./configure -confirm-license -opensource \
-	&& make
+	&& make 
 
 RUN cd /home/$user/build/qtbase-everywhere-src-5.12.11 \
 	&& echo "$password" | sudo -S make install \
 	&& echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/Qt-5.12.11/lib" >> ${HOME}/.bashrc \
 	&& mkdir -p /home/$user/code/qt/
 
+RUN cd /home/$user/build/qttools-everywhere-src-5.12.11 \
+	&& mkdir build \
+	&& cd build \
+	&& /usr/local/Qt-5.12.11/bin/qmake .. \
+	&& make \
+	&& echo "$password" | sudo -S make install  
+
+
 COPY .ycm_extra_conf.py /home/$user/.vim/.ycm_extra_conf.py
 COPY .vimrc /home/$user/.vimrc
-RUN vim +PluginInstall +qall
+RUN vim +PluginInstall +qall \
+	&& echo "$password" | sudo -S apt-get install clang-format -y 
 COPY .qtycm_extra_conf.py /home/$user/code/qt/.ycm_extra_conf.py
+COPY .mybashrc /home/$user/.mybashrc
+RUN echo "$password" | sudo -S echo "source /home/$user/.mybashrc" >> ${HOME}/.bashrc
 
 WORKDIR /home/$user
